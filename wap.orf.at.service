@@ -1,0 +1,29 @@
+[Unit]
+Description=wap.orf.at
+After=network.target
+
+[Service]
+User=wap
+Group=wap
+WorkingDirectory=/var/www/wap.orf.at/
+ExecStart=/usr/bin/node /var/www/wap.orf.at/dist/server.js
+Restart=always
+RestartSec=5
+Environment=NODE_ENV=production
+
+# Security Hardening
+ProtectSystem=strict
+ProtectHome=true
+NoNewPrivileges=true
+ReadOnlyPaths=/var/www/wap.orf.at/
+RestrictAddressFamilies=AF_INET AF_INET6
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+PrivateTmp=true
+ProtectKernelModules=true
+ProtectKernelLogs=true
+ProtectControlGroups=true
+RestrictRealtime=true
+SystemCallFilter=@network @read @write
+
+[Install]
+WantedBy=multi-user.target

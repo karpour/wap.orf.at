@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE wml PUBLIC "-//WAPFORUM//DTD WML 1.1//EN" "http://www.wapforum.org/DTD/wml_1.1.xml">
+<wml>
+    <head>
+        <meta http-equiv="Cache-Control" content="max-age=0" />
+    </head>
+    <template>
+        <do type='prev' label='Zur&#xFC;ck'>
+            <prev />
+        </do>
+        <do type='' label='wap.ORF.at'>
+            <go href='/' />
+        </do>
+    </template>
+    <card title="<%- title %>">
+        <p align="center">
+            <% if (feedType=="oe3") { %>
+            <img src="/img/oe3.gif" alt="OE3" />
+            <% } else { %>
+            <img src="/img/orfon.gif" alt="ORF" />
+            <% } %>
+        </p>
+        <p align="center">Top News</p>
+        <p>
+            <small>
+                <% newsItems.forEach(n => { %><a href='/feed/<%= feedType %>/<%= n.id %>'><%- encodeEntities(n.title) %></a><br />
+                <% }) %>
+            </small>
+        </p>
+    </card>
+</wml>

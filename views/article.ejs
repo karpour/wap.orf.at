@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE wml PUBLIC "-//WAPFORUM//DTD WML 1.1//EN" "http://www.wapforum.org/DTD/wml_1.1.xml">
+<!-- Author: ORF -->
+<wml>
+    <head>
+        <meta http-equiv="Cache-Control" content="max-age=0" />
+    </head>
+    <template>
+        <do type='prev' label='Zur&#xFC;ck'>
+            <prev />
+        </do>
+        <do type='' label='wap.ORF.at'>
+            <go href='/' />
+        </do>
+    </template>
+    <card title="<%- title %>">
+        <p>
+
+            <!-- Date is MM.YY. HH:mm-->
+            <em><%- newsItem.title %>&nbsp;<%- dateFormatted %></em>
+        </p>
+        <% if(newsItem.img) { %>
+        <p align="center">
+            <img src="/aimg/<%= feedType %>/<%= newsItem.id %>" alt="Article image" /><br />
+        </p>
+        <% } %>
+        <% newsItem.paragraphs.forEach(paragraph => { %>
+        <p> <%- paragraph %> </p>
+        <% }) %>
+    </card>
+</wml>
