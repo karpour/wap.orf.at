@@ -35,7 +35,7 @@ export class TrafficInfo {
             item.Street = encodeEntities(item.Street);
             item.District = encodeEntities(item.District);
         }
-        console.log(data);
+        //console.log(data);
         return data;
     }
 

@@ -1,7 +1,7 @@
 import { spawn } from 'child_process';
 import { Readable, pipeline } from 'stream';
 
-export async function getImageStream(url: string, width: number, height: number, mimeType: string): Promise<Readable> {
+export async function getImageStream(url: string, width: number, height: number, imageFormat: "gif" | "wbmp"): Promise<Readable> {
     // Fetch the image using built-in fetch API
     console.log(`Fetching IMG ${url}`);
 
@@ -28,7 +28,7 @@ export async function getImageStream(url: string, width: number, height: number,
     const convert = spawn("convert", [
         "-", // Read input from stdin
         "-resize", `${width}x${height}`, // Resize while maintaining aspect ratio
-        "GIF:-" // Output GIF to stdout
+        `${imageFormat.toUpperCase()}:-` // Output GIF to stdout
     ]);
 
     // Handle errors in ImageMagick

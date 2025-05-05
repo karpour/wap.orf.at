@@ -15,13 +15,11 @@
     </template>
     <card title="<%- title %>">
         <p>
-
-            <!-- Date is MM.YY. HH:mm-->
             <strong><%- newsItem.title %>&nbsp;<%- dateFormatted %></strong>
         </p>
         <% if(newsItem.img) { %>
         <p align="center">
-            <img src="/aimg/<%= feedType %>/<%= newsItem.id %>" alt="Article image" /><br />
+            <img src="/aimg/<%= feedType %>/<%= newsItem.id %>" alt="Artikelbild" /><br />
         </p>
         <% } %>
         <% newsItem.paragraphs.forEach(paragraph => { %>

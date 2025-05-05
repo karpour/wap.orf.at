@@ -31,13 +31,6 @@ export const FEED_TITLES: { [key in OrfFeedType]: string } = {
     "sport": "ORF Sport"
 } as const;
 
-const client = new LRUCache<string, any>({
-    max: 500,
-    ttl: 1000 * 600
-});
-const clientAdapter = useAdapter(client);
-
-
 export type OrfFeedItem = {
     date: string,
     title: string,
@@ -60,7 +53,13 @@ export type OrfArticle = {
 
 
 class OrfApi {
-    public constructor(public readonly feedType: OrfFeedType) { }
+    private readonly feedCache: LRUCache<string, OrfFeedItem[]>;
+    private readonly itemCache: LRUCache<string, OrfArticle>;
+
+    public constructor(public readonly feedType: OrfFeedType) {
+        this.feedCache = new LRUCache({ max: 10, ttl: 1000 * 600 }); // 5 minutes
+        this.itemCache = new LRUCache({ max: 50, ttl: 1000 * 600 }); // 10 minutes
+    }
 
     public static readonly feeds: { [key in OrfFeedType]: OrfApi } = {
         "oe3": new OrfApi("oe3"),
@@ -76,8 +75,13 @@ class OrfApi {
         return key;
     }
 
-    //@Cacheable({ cacheKey: OrfApi.setCacheKey })
     public async getFeed(): Promise<OrfFeedItem[]> {
+        const cacheKey = 'feed';
+        const cached = this.feedCache.get(cacheKey);
+        if (cached) {
+            return cached;
+        }
+
         const url = FEEDS[this.feedType];
         console.log(`Fetching ${url}`);
         let feed = (await parser.parseURL(FEEDS[this.feedType])).items as OrfFeedItem[];
@@ -93,8 +97,12 @@ class OrfApi {
         return feed.filter(f => f.id !== undefined);
     }
 
-    //@Cacheable({ cacheKey: OrfApi.setCacheKey })
     public async getNewsItem(id: string): Promise<OrfArticle> {
+        const cached = this.itemCache.get(id);
+        if (cached) {
+            return cached;
+        }
+
         try {
             // Fetch the HTML from the website
             const url = `${FEED_ITEM_URLS[this.feedType]}/${id}/`;
@@ -128,8 +136,8 @@ class OrfApi {
                     paragraphs = [text];
                 } else {
                     const p = Array.from(document.querySelectorAll("#ss-storyText>p")).map(p => p.innerHTML.trim()).filter(p => p !== "");
-                    console.log(`First paragraph length: ${p[0]?.length}`);
-                    console.log(`Total string length: ${totalStringLength(p)}`);
+                    //console.log(`First paragraph length: ${p[0]?.length}`);
+                    //console.log(`Total string length: ${totalStringLength(p)}`);
                     //console.log(p);
                     paragraphs = p;
                 }
@@ -144,8 +152,8 @@ class OrfApi {
                     paragraphs = [text];
                 } else {
                     const p = Array.from(document.querySelectorAll(".story-story>p")).map(p => p.innerHTML);
-                    console.log(`First paragraph length: ${p[0]?.length}`);
-                    console.log(`Total string length: ${totalStringLength(p)}`);
+                    //console.log(`First paragraph length: ${p[0]?.length}`);
+                    //console.log(`Total string length: ${totalStringLength(p)}`);
                     //console.log(p);
                     paragraphs = p;
                 }
@@ -156,11 +164,11 @@ class OrfApi {
                 .map(changeBreaks)
                 .map(encodeEntitiesWithHtml);
 
-            console.log({
-                title,
-                img,
-                paragraphs,
-            });
+            //console.log({
+            //    title,
+            //    img,
+            //    paragraphs,
+            //});
 
 
 
@@ -172,7 +180,7 @@ class OrfApi {
                 id
             };
         } catch (error) {
-            console.error('Error fetching the page:', error);
+            //console.error('Error fetching the page:', error);
             throw error;
         }
     }

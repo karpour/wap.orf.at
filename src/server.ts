@@ -2,12 +2,10 @@ import express, { query } from 'express';
 import path from 'path';
 import { TrafficInfo } from './TrafficInfo';
 import { pipeline } from 'stream';
-import { read } from 'fs';
 import OrfApi, { FEED_TITLES, FEED_TYPES, OrfFeedType } from './OrfApi';
 import { getImageStream } from './getImageStream';
 import { encodeEntities } from './encodeEntities';
-
-
+import { getCurrentDateTime } from './getCurrentDateTime';
 
 const app = express();
 const port = 3015;
@@ -27,20 +25,23 @@ app.use((req, res, next) => {
 
 // Home page
 app.get('/', async (req, res) => {
-    res.render('index');
+    const data = {
+        imageFormat: getImageFormat(req.headers.accept)
+    };
+    res.render('index', data);
 });
 
 app.get('/verkehr', async (req, res) => {
     const trafficInfo = await TrafficInfo.getTrafficInfo();
     const data = {
-        trafficInfo
+        trafficInfo,
+        imageFormat: getImageFormat(req.headers.accept)
     };
     res.render('verkehr', data);
     res.end();
 });
 
 app.get('/feed/:feedType', async (req, res) => {
-    res.setHeader("Content-Type", "text/vnd.wap.wml");
     const feedType = req.params.feedType as OrfFeedType;
     if (!FEED_TYPES.includes(feedType)) {
         console.error(`Unknown feedtype: ${feedType}`);
@@ -48,7 +49,7 @@ app.get('/feed/:feedType', async (req, res) => {
     }
     const feed = OrfApi.feeds[feedType];
     const newsItems = await feed.getFeed();
-    const dateFormatted = "2020"; // TODO
+    const dateFormatted = getCurrentDateTime();
     const title = FEED_TITLES[feedType];
 
     const data = {
@@ -56,13 +57,13 @@ app.get('/feed/:feedType', async (req, res) => {
         newsItems,
         dateFormatted,
         title,
+        imageFormat: getImageFormat(req.headers.accept),
         encodeEntities
     };
     res.render('feed', data);
 });
 
 app.get('/feed/:feedType/:id', async (req, res) => {
-    res.setHeader("Content-Type", "text/vnd.wap.wml");
     const feedType = req.params.feedType as OrfFeedType;
     const id = req.params.id;
     if (!FEED_TYPES.includes(feedType)) {
@@ -71,33 +72,33 @@ app.get('/feed/:feedType/:id', async (req, res) => {
     }
     const feed = OrfApi.feeds[feedType];
     const newsItem = await feed.getNewsItem(id);
-    const dateFormatted = ""; // TODO
+    const dateFormatted = getCurrentDateTime();
     const title = FEED_TITLES[feedType];
 
     const data = {
         feedType,
         newsItem,
         dateFormatted,
-        title
+        title,
+        imageFormat: getImageFormat(req.headers.accept)
     };
     res.render('article', data);
 });
 
 
 app.get('/ua/', async (req, res) => {
-    console.log("USER AGENT");
-    console.log(req.get('user-agent'));
+    console.log("USER AGENT: " + req.get('user-agent'));
     console.log(req.headers);
+    console.log(req.headers.accept);
     res.render('index');
 });
 
 app.get('/show/', async (req, res) => {
-    res.setHeader("Content-Type", "text/vnd.wap.wml");
     res.render('img');
 });
 
 app.get("/aimg/:feedType/:id", async (req, res) => {
-    const mimeType = "image/gif";
+    const imageFormat = getImageFormat(req.headers.accept ?? "");
 
     const feedType = req.params.feedType as OrfFeedType;
     const id = req.params.id;
@@ -109,11 +110,11 @@ app.get("/aimg/:feedType/:id", async (req, res) => {
     const newsItem = await feed.getNewsItem(id);
 
     // Set response headers for GIF output
-    res.setHeader("Content-Type", mimeType);
+    res.setHeader("Content-Type", imageMimeTypeMapping[imageFormat]);
 
     if (newsItem.img) {
         // Properly pipeline the streams
-        const imageStream = await getImageStream(newsItem.img, 96, 96, mimeType);
+        const imageStream = await getImageStream(newsItem.img, 96, 96, imageFormat);
 
         pipeline(
             imageStream,
@@ -132,3 +133,14 @@ app.get("/aimg/:feedType/:id", async (req, res) => {
 app.listen(port, () => {
     console.log(`Server is running at http://localhost:${port}`);
 });
+
+type ImageFormat = "gif" | "wbmp";
+
+const imageMimeTypeMapping: { [key in ImageFormat]: string } = {
+    "gif": "image/gif",
+    "wbmp": "image/vnd.wap.wbmp"
+};
+
+function getImageFormat(acceptHeaders?: string): ImageFormat {
+    return acceptHeaders && acceptHeaders.includes("image/gif") ? "gif" : "wbmp";
+}
