@@ -49,5 +49,5 @@ Furthermore, [imagemagick](https://imagemagick.org) must be installed
 # TODO
 
 - [x] Improve LRU caching
-- [ ] Add screenshots
+- [x] Add screenshots
 - [ ] Add XHTML/WAP2 support
