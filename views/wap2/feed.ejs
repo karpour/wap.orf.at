@@ -1,0 +1,22 @@
+<%- include('partials/doctype') %>
+<html>
+<head>
+    <title><%- title %></title>
+</head>
+<body>
+    <p align="center">
+        <% if (feedType=="oe3") { %>
+        <img src="/img/oe3.<%= imageFormat %>" alt="OE3" />
+        <% } else { %>
+        <img src="/img/orfon.<%= imageFormat %>" alt="ORF" />
+        <% } %>
+    </p>
+    <p align="center">Top News</p>
+    <p>
+        <small>
+            <% newsItems.forEach(n => { %><a href='/feed/<%= feedType %>/<%= n.id %>'><%- encodeEntities(n.title) %></a><br />
+            <% }) %>
+        </small>
+    </p>
+</body>
+</html>

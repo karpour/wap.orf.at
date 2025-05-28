@@ -1,0 +1,19 @@
+<%- include('partials/doctype') %>
+<html>
+<head>
+    <title><%- title %></title>
+</head>
+<body>
+    <p>
+        <strong><%- newsItem.title %></strong>
+    </p>
+    <% if(newsItem.img) { %>
+    <p align="center">
+        <img src="/aimg/<%= feedType %>/<%= newsItem.id %>" alt="Artikelbild" /><br />
+    </p>
+    <% } %>
+    <% newsItem.paragraphs.forEach(paragraph => { %>
+    <p> <%- paragraph %> </p>
+    <% }) %>
+</body>
+</html>

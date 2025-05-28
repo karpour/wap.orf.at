@@ -50,4 +50,5 @@ Furthermore, [imagemagick](https://imagemagick.org) must be installed
 
 - [x] Improve LRU caching
 - [x] Add screenshots
+- [ ] Fix time/date being NaN
 - [ ] Add XHTML/WAP2 support
