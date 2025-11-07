@@ -15,13 +15,12 @@
     </template>
     <card title="&#214;3 Verkehr">
         <p align="center">
-            <img src="/img/oe3.<%= imageFormat %>" alt="&#214;3" /><br />
+            <img src="img/oe3.<%= imageFormat %>" alt="&#214;3" /><br />
         </p>
         <% for(let t of trafficInfo.TrafficItems) { 
-                let location = (t.Street !== "" && t.District!== "") ? `${t.Street}, ${t.District}` : `${t.Street}${t.District}`;
             %>
         <p>
-            <u><%- location %></u><br />
+            <u><%- t.Location %></u><br />
             <small><%- t.Text %></small>
         </p>
         <p align="center">---</p>

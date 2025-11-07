@@ -73,7 +73,6 @@ app.get('/feed/:feedType/:id', async (req, res) => {
     res.render('article', data);
 });
 
-
 app.get('/ua/', async (req, res) => {
     console.log("USER AGENT: " + req.get('user-agent'));
     console.log(req.headers);

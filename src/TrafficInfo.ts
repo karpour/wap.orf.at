@@ -16,6 +16,7 @@ export type TrafficInfoData = {
         District: string;
         EventCode: number;
         EventImage: string;
+        Location: string;
         Coordinates: {
             Longitude: number,
             Latitude: number;
@@ -34,6 +35,7 @@ export class TrafficInfo {
             item.Text = encodeEntities(item.Text);
             item.Street = encodeEntities(item.Street);
             item.District = encodeEntities(item.District);
+            item.Location = (item.Street !== "" && item.District !== "") ? `${item.Street}, ${item.District}` : `${item.Street}${item.District}`;
         }
         //console.log(data);
         return data;
